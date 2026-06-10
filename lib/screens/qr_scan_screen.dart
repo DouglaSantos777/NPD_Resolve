@@ -6,10 +6,6 @@ import '../theme/app_theme.dart';
 import '../models.dart';
 import 'review_screen.dart';
 
-// ─────────────────────────────────────────────
-// QR codes predefinidos → equipamentos
-// Imprima/mostre esses valores em QR codes para testar
-// ─────────────────────────────────────────────
 const Map<String, EquipmentInfo> kKnownQrCodes = {
   'LOC-LIBRARY': EquipmentInfo(
       name: 'Biblioteca', tag: 'LOC-LIBRARY', location: 'Biblioteca'),
@@ -30,8 +26,6 @@ class EquipmentInfo {
   const EquipmentInfo(
       {required this.name, required this.tag, required this.location});
 }
-
-// ─────────────────────────────────────────────
 
 class QrScanScreen extends StatefulWidget {
   final ProblemType selectedProblem;
@@ -82,7 +76,6 @@ class _QrScanScreenState extends State<QrScanScreen>
     super.dispose();
   }
 
-  // ── chamado quando a câmera lê um código ──
   void _onDetect(Barcode barcode, MobileScannerArguments? args) {
     if (_scanned) return;
     final raw = barcode.rawValue;
@@ -93,7 +86,6 @@ class _QrScanScreenState extends State<QrScanScreen>
     _cameraController.stop();
 
     final equipment = kKnownQrCodes[raw];
-
     if (equipment != null) {
       _showFoundDialog(equipment);
     } else {
@@ -101,7 +93,6 @@ class _QrScanScreenState extends State<QrScanScreen>
     }
   }
 
-  // QR reconhecido → mostra dados do equipamento
   void _showFoundDialog(EquipmentInfo eq) {
     showDialog(
       context: context,
@@ -123,17 +114,17 @@ class _QrScanScreenState extends State<QrScanScreen>
                   color: AppColors.secondary, size: 36),
             ),
             const SizedBox(height: 16),
-            Text('Equipamento encontrado!',
-                style: GoogleFonts.inter(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary)),
+            Text(
+              'Localização identificada!',
+              style: GoogleFonts.inter(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary),
+            ),
             const SizedBox(height: 12),
-            _infoRow(Icons.devices, 'Equipamento', eq.name),
-            const SizedBox(height: 8),
-            _infoRow(Icons.qr_code, 'Patrimônio', eq.tag),
-            const SizedBox(height: 8),
             _infoRow(Icons.location_on, 'Local', eq.location),
+            const SizedBox(height: 8),
+            _infoRow(Icons.qr_code, 'Código QR', eq.tag),
             const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
@@ -149,9 +140,11 @@ class _QrScanScreenState extends State<QrScanScreen>
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
                 ),
-                child: Text('Usar este equipamento',
-                    style: GoogleFonts.inter(
-                        fontWeight: FontWeight.w700, fontSize: 15)),
+                child: Text(
+                  'Confirmar localização',
+                  style: GoogleFonts.inter(
+                      fontWeight: FontWeight.w700, fontSize: 15),
+                ),
               ),
             ),
             const SizedBox(height: 8),
@@ -161,9 +154,11 @@ class _QrScanScreenState extends State<QrScanScreen>
                 setState(() => _scanned = false);
                 _cameraController.start();
               },
-              child: Text('Escanear novamente',
-                  style: GoogleFonts.inter(
-                      color: AppColors.outline, fontSize: 13)),
+              child: Text(
+                'Escanear novamente',
+                style:
+                    GoogleFonts.inter(color: AppColors.outline, fontSize: 13),
+              ),
             ),
           ],
         ),
@@ -171,7 +166,6 @@ class _QrScanScreenState extends State<QrScanScreen>
     );
   }
 
-  // QR desconhecido → oferece usar assim mesmo
   void _showUnknownDialog(String raw) {
     showDialog(
       context: context,
@@ -193,14 +187,16 @@ class _QrScanScreenState extends State<QrScanScreen>
                   color: AppColors.error, size: 36),
             ),
             const SizedBox(height: 16),
-            Text('QR Code não cadastrado',
-                style: GoogleFonts.inter(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary)),
+            Text(
+              'Local não cadastrado',
+              style: GoogleFonts.inter(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary),
+            ),
             const SizedBox(height: 8),
             Text(
-              'Este equipamento não está na base do NPD. Deseja abrir o chamado assim mesmo?',
+              'Esta localização não está cadastrada no NPD. Deseja abrir o chamado assim mesmo?',
               textAlign: TextAlign.center,
               style: GoogleFonts.inter(
                   fontSize: 14, color: AppColors.onSurfaceVariant, height: 1.5),
@@ -214,9 +210,7 @@ class _QrScanScreenState extends State<QrScanScreen>
               ),
               child: Text(raw,
                   style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: AppColors.outline,
-                  )),
+                      fontSize: 12, color: AppColors.outline)),
             ),
             const SizedBox(height: 20),
             Row(
@@ -243,7 +237,7 @@ class _QrScanScreenState extends State<QrScanScreen>
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.pop(context);
-                      _navigateToReview('Equipamento: $raw');
+                      _navigateToReview(raw);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
@@ -330,19 +324,12 @@ class _QrScanScreenState extends State<QrScanScreen>
       ),
       body: Stack(
         children: [
-          // ── câmera real ──
           MobileScanner(
             controller: _cameraController,
             onDetect: _onDetect,
           ),
-
-          // ── overlay escuro nas bordas ──
           _buildScanOverlay(context),
-
-          // ── linha de scan animada ──
           _buildScanLine(context),
-
-          // ── instruções em baixo ──
           _buildBottomPanel(context),
         ],
       ),
@@ -360,7 +347,6 @@ class _QrScanScreenState extends State<QrScanScreen>
 
     return Stack(
       children: [
-        // Escurecimento geral
         ColorFiltered(
           colorFilter: const ColorFilter.mode(Colors.black54, BlendMode.srcOut),
           child: Stack(
@@ -384,8 +370,6 @@ class _QrScanScreenState extends State<QrScanScreen>
             ],
           ),
         ),
-
-        // Cantos decorativos
         Positioned(
             top: cutoutTop,
             left: (size.width - cutoutSize) / 2,
@@ -495,7 +479,6 @@ class _QrScanScreenState extends State<QrScanScreen>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // pill indicator
             Container(
               width: 40,
               height: 4,
@@ -506,14 +489,12 @@ class _QrScanScreenState extends State<QrScanScreen>
             ),
             const SizedBox(height: 16),
             Text(
-              'Aponte a câmera para o QR Code do equipamento',
+              'Escaneie o QR Code da localização para preencher os dados automaticamente e evitar erros.',
               textAlign: TextAlign.center,
               style: GoogleFonts.inter(
                   fontSize: 14, color: Colors.white70, height: 1.5),
             ),
             const SizedBox(height: 20),
-
-            // botão manual
             SizedBox(
               width: double.infinity,
               height: 50,
@@ -534,44 +515,12 @@ class _QrScanScreenState extends State<QrScanScreen>
               ),
             ),
             const SizedBox(height: 12),
-
-            // chips dos QR codes de exemplo (só em debug)
-            Text('QR codes válidos neste app:',
-                style: GoogleFonts.inter(fontSize: 11, color: Colors.white38)),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              alignment: WrapAlignment.center,
-              children: kKnownQrCodes.keys
-                  .map((k) => GestureDetector(
-                        onTap: () => _simulateScan(k),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: AppColors.primaryContainer.withOpacity(0.25),
-                            borderRadius: BorderRadius.circular(999),
-                            border: Border.all(
-                                color: AppColors.primaryContainer
-                                    .withOpacity(0.4)),
-                          ),
-                          child: Text(k,
-                              style: GoogleFonts.inter(
-                                  fontSize: 11,
-                                  color: Colors.white70,
-                                  fontWeight: FontWeight.w500)),
-                        ),
-                      ))
-                  .toList(),
-            ),
           ],
         ),
       ),
     );
   }
 
-  // ── simula scan tocando num chip (útil em emulador sem câmera) ──
   void _simulateScan(String code) {
     if (_scanned) return;
     setState(() => _scanned = true);
@@ -586,7 +535,7 @@ class _QrScanScreenState extends State<QrScanScreen>
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('Inserir patrimônio',
+        title: Text('Inserir código do local',
             style: GoogleFonts.inter(
                 fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
         content: TextField(
@@ -594,7 +543,7 @@ class _QrScanScreenState extends State<QrScanScreen>
           autofocus: true,
           textCapitalization: TextCapitalization.characters,
           decoration: InputDecoration(
-            hintText: 'Ex.: NPD-PC-001',
+            hintText: 'Ex.: LOC-LAB1',
             hintStyle: GoogleFonts.inter(color: AppColors.outline),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
             focusedBorder: OutlineInputBorder(
@@ -636,7 +585,6 @@ class _QrScanScreenState extends State<QrScanScreen>
   }
 }
 
-// ── Painter dos cantos do viewfinder ──
 class _CornerPainter extends CustomPainter {
   final bool top, left;
   final double thick, radius;

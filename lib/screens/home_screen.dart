@@ -81,19 +81,24 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Column(
         children: [
+          // banner de aviso preventivo
           if (_isOffline)
             Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              color: const Color(0xFFFFF3CD),
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF3CD),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFFFE082)),
+              ),
               child: Row(
                 children: [
                   const Icon(Icons.wifi_off,
-                      color: Color(0xFF856404), size: 20),
-                  const SizedBox(width: 10),
+                      color: Color(0xFF856404), size: 22),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'Você está offline. Os dados foram salvos e serão enviados quando a conexão voltar.',
+                      'Sem conexão. Você ainda pode preencher o chamado — ele será enviado automaticamente quando a internet voltar.',
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         color: const Color(0xFF856404),

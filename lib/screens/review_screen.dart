@@ -166,7 +166,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                         _reviewItem(
                           icon: Icons.smartphone,
                           label: 'Equipamento',
-                          value: widget.equipment,
+                          value: 'Smartphone Pessoal',
                         ),
                         if (widget.description.isNotEmpty) ...[
                           const SizedBox(height: 16),

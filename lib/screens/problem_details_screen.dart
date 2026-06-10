@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import '../theme/app_theme.dart';
 import '../models.dart';
 import 'qr_scan_screen.dart';
@@ -17,6 +18,7 @@ class _ProblemDetailsScreenState extends State<ProblemDetailsScreen> {
   String? _selectedLocationId;
   final _descController = TextEditingController();
   int _charCount = 0;
+  bool _isOffline = false;
 
   static const _locationIcons = {
     'library': Icons.menu_book,
@@ -29,9 +31,17 @@ class _ProblemDetailsScreenState extends State<ProblemDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    _descController.addListener(() {
-      setState(() => _charCount = _descController.text.length);
+    _descController.addListener(
+        () => setState(() => _charCount = _descController.text.length));
+    _checkConnectivity();
+    Connectivity().onConnectivityChanged.listen((result) {
+      setState(() => _isOffline = result.contains(ConnectivityResult.none));
     });
+  }
+
+  Future<void> _checkConnectivity() async {
+    final result = await Connectivity().checkConnectivity();
+    setState(() => _isOffline = result.contains(ConnectivityResult.none));
   }
 
   @override
@@ -79,46 +89,115 @@ class _ProblemDetailsScreenState extends State<ProblemDetailsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Progress
-            Column(
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'PASSO 2 DE 3',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.outline,
-                        letterSpacing: 0.8,
-                      ),
-                    ),
-                    Text(
-                      'Quase lá',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  ],
+                Text(
+                  'PASSO 2 DE 3',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.outline,
+                    letterSpacing: 0.8,
+                  ),
                 ),
-                const SizedBox(height: 8),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(999),
-                  child: const LinearProgressIndicator(
-                    value: 0.66,
-                    minHeight: 8,
-                    backgroundColor: AppColors.surfaceContainerHigh,
-                    valueColor:
-                        AlwaysStoppedAnimation<Color>(AppColors.primary),
+                Text(
+                  'Quase lá',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.primary,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 8),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(999),
+              child: const LinearProgressIndicator(
+                value: 0.66,
+                minHeight: 8,
+                backgroundColor: AppColors.surfaceContainerHigh,
+                valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+              ),
+            ),
+            const SizedBox(height: 20),
 
-            // Selected problem chip
+            // Banner verde — cache offline (sempre visível, informativo)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceContainerLow,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.outlineVariant),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.cloud_done_outlined,
+                      color: AppColors.secondary, size: 20),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'Dados protegidos offline · Sincronização automática ativa',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            // Banner vermelho — aviso do servidor (só aparece offline)
+            if (_isOffline)
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: AppColors.errorContainer,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.error.withOpacity(0.2)),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.warning_amber_rounded,
+                        color: AppColors.error, size: 20),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: RichText(
+                        text: TextSpan(
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            color: AppColors.onErrorContainer,
+                            height: 1.45,
+                          ),
+                          children: [
+                            TextSpan(
+                              text: 'Atenção: ',
+                              style: GoogleFonts.inter(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.onErrorContainer,
+                              ),
+                            ),
+                            const TextSpan(
+                              text:
+                                  'Identificamos uma instabilidade geral no servidor da UESPI no momento. A equipe já está trabalhando nisso!',
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+            SizedBox(height: _isOffline ? 20 : 10),
+
+            // Chip do problema selecionado
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
@@ -136,9 +215,9 @@ class _ProblemDetailsScreenState extends State<ProblemDetailsScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
 
-            // Location Section
+            // Seção de localização
             Text(
               'Onde você está?',
               style: GoogleFonts.inter(
@@ -158,7 +237,7 @@ class _ProblemDetailsScreenState extends State<ProblemDetailsScreen> {
 
             const SizedBox(height: 24),
 
-            // Description
+            // Descrição
             Text(
               'Descreva o que aconteceu (Opcional)',
               style: GoogleFonts.inter(
@@ -216,7 +295,7 @@ class _ProblemDetailsScreenState extends State<ProblemDetailsScreen> {
             ),
             const SizedBox(height: 32),
 
-            // Continue Button
+            // Botão Continuar
             SizedBox(
               width: double.infinity,
               height: 56,
