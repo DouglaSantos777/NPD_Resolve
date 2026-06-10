@@ -1,0 +1,33 @@
+name: neonpd
+description: neoNPD - Sistema de Chamados de TI
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+  google_fonts: ^6.1.0
+  flutter_animate: ^4.3.0
+  mobile_scanner: ^2.1.0
+  permission_handler: ^11.1.0
+  flutter_launcher_icons: ^0.14.1
+  connectivity_plus: ^6.0.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/logo.png"
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/banner.png
